@@ -3,8 +3,7 @@ import Head from 'next/head'
 
 import { Card } from '@/components/Card'
 import { SimpleLayout } from '@/components/SimpleLayout'
-import logoAnimaginary from '@/images/logos/animaginary.svg'
-import logoPlanetaria from '@/images/logos/planetaria.svg'
+import { formatDate } from '@/lib/formatDate'
 import { client, urlFor } from "@/lib/sanity"
 import { useState, useEffect } from 'react';
 
@@ -25,10 +24,10 @@ function LinkIcon(props) {
 export default function Projects() {
   const [projects, setPosts] = useState([]);
 
-  useEffect( () => { 
-      async function fetchData() {
-          try {
-            const query = `
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const query = `
             *[_type == 'project'] | order(_createdAt desc){
               title,
                 smallDescription,
@@ -36,15 +35,16 @@ export default function Projects() {
                 projectLogo,
                 url,
                 label,
+                publishedAt,
               }`;
-              const res = await client.fetch(query); 
-              setPosts(res);
-              // console.log("result: ",res[0].title)
-          } catch (err) {
-              console.log(err);
-          }
+        const res = await client.fetch(query);
+        setPosts(res);
+        // console.log("result: ",res[0].title)
+      } catch (err) {
+        console.log(err);
       }
-      fetchData();
+    }
+    fetchData();
   }, []);
   return (
     <>
@@ -75,10 +75,17 @@ export default function Projects() {
                   priority
                   unoptimized
                 />
+                
               </div>
-              <h2 className="mt-6 text-base font-semibold text-zinc-800 dark:text-zinc-100">
+              <div className='mt-6'>
+              <Card.Eyebrow as="time" dateTime={project.publishedAt} decorate>
+                {formatDate(project.publishedAt)}
+              </Card.Eyebrow>
+              </div>
+              <h2 className="mt-2 text-base font-semibold text-zinc-800 dark:text-zinc-100">
                 <Card.Link href={project.url}>{project.title}</Card.Link>
               </h2>
+              
               <Card.Description>{project.smallDescription}</Card.Description>
               <p className="relative z-10 mt-6 flex text-sm font-medium text-zinc-400 transition group-hover:text-teal-500 dark:text-zinc-200">
                 <LinkIcon className="h-6 w-6 flex-none" />

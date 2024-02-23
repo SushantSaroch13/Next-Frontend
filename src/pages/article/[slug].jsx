@@ -1,6 +1,9 @@
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { client, urlFor } from "@/lib/sanity";
+import { Card } from '@/components/Card'
+import { SimpleLayout } from '@/components/SimpleLayout'
+import { formatDate } from '@/lib/formatDate'
 import { useState, useEffect } from 'react';
 import { PortableText } from '@portabletext/react';
 import { Container } from '@/components/Container'
@@ -54,7 +57,12 @@ const Page = () => {
                         {data.title}
                     </h1>
                 </header>
-                <div className="mt-16 sm:mt-20">
+                <div className='mt-6'>
+                    <Card.Eyebrow as="time" dateTime={data.publishedAt} decorate>
+                        {formatDate(data.publishedAt)}
+                    </Card.Eyebrow>
+                </div>
+                <div className="mt-5 sm:mt-8">
                     {data.titleImage && (
                         <Image
                             src={urlFor(data.titleImage).url()}
