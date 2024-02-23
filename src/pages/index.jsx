@@ -223,11 +223,19 @@ function Resume() {
 }
 
 function Photos() {
-  let rotations = ['rotate-0', 'rotate-0', 'rotate-0', 'rotate-0', 'rotate-0']
+  let rotations = ['rotate-0', 'rotate-0', 'rotate-0', 'rotate-0', 'rotate-0'];
 
   return (
-    <div className="mt-16 sm:mt-20">
-      <div className="-my-4 flex justify-center gap-5 overflow-hidden py-4 sm:gap-8">
+    <div className="mt-16 sm:mt-20 overflow-x-auto flex">
+      <style>
+        {`
+          /* Hide the horizontal scrollbar */
+          .overflow-x-auto::-webkit-scrollbar {
+            display: none;
+          }
+        `}
+      </style>
+      <div className="flex gap-5 py-4 sm:gap-8">
         {[image1, image2, image3, image4, image5].map((image, imageIndex) => (
           <div
             key={image.src}
@@ -247,8 +255,13 @@ function Photos() {
         ))}
       </div>
     </div>
-  )
+  );
 }
+
+
+
+
+
 
 export const revalidate = 30 // revalidate at most every 30 sec
 
@@ -259,13 +272,11 @@ export default function Home() {
       async function fetchData() {
           try {
             const query = `
-                *[_type == 'blog'] | order(_createdAt desc)
-              {
+            *[_type == 'blog'] | order(_createdAt desc) [0...4]{
               title,
                 smallDescription,
                 'currentSlug': slug.current,
-                publishedAt,
-
+                publishedAt
               }`;
               const res = await client.fetch(query); 
               setPosts(res);
@@ -313,7 +324,7 @@ export default function Home() {
               icon={InstagramIcon}
             />
             <SocialLink
-              href="https://github.com/Sushant0013"
+              href="https://github.com/SushantSaroch13"
               aria-label="Follow on GitHub"
               icon={GitHubIcon}
             />
