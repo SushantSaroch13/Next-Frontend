@@ -44,5 +44,3 @@ To learn more about the technologies used in this site template, see the followi
 - [Headless UI](https://headlessui.dev) - the official Headless UI documentation
 - [MDX](https://mdxjs.com) - the MDX documentation
 =======
-# Portfolio
->>>>>>> origin/main
