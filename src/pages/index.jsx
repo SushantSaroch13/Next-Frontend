@@ -20,7 +20,6 @@ import image5 from '@/images/photos/image-5.jpeg'
 import logoNucleon from '@/images/logos/logoNucleon.png'
 import logoSkillVertex from '@/images/logos/logoSkillVertex.png'
 import logoMitsubishi from '@/images/logos/logoMitsubishi.png'
-import { generateRssFeed } from '@/lib/generateRssFeed'
 import { formatDate } from '@/lib/formatDate'
 import { client, urlFor } from "@/lib/sanity"
 import { useState, useEffect } from 'react';
@@ -356,53 +355,3 @@ export default function Home() {
   )
 }
 
-function BlogList({blogs}){
-  const [data, setPosts] = useState([]);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Run only on the client side
-      async function fetchData() {
-        try {
-          const query = `
-            *[_type == 'blog'] | order(_createdAt desc) {
-              title,
-              smallDescription,
-              'currentSlug': slug.current,
-              titleImage
-            }`;
-          const res = await client.fetch(query);
-          setPosts(res);
-          console.log("result: ", res);
-        } catch (err) {
-          console.log(err);
-        }
-      }
-      fetchData();
-    }
-  }, []);
-}
-
-export async function getStaticProps() {
-  if (process.env.NODE_ENV === 'production') {
-    await generateRssFeed();
-  }
-  // const client = getClient();
-  const query = `
-    *[_type == 'blog'] | order(_createdAt desc) {
-      title,
-      smallDescription,
-      'currentSlug': slug.current,
-      titleImage
-    }`;
-
-  const data = await client.fetch(query);
-  
-  const blogs = data.slice(0, 4);
-
-  return {
-    props: {
-      blogs,
-    },
-  };
-}
