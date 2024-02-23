@@ -20,6 +20,7 @@ import image5 from '@/images/photos/image-5.jpeg'
 import logoNucleon from '@/images/logos/logoNucleon.png'
 import logoSkillVertex from '@/images/logos/logoSkillVertex.png'
 import logoMitsubishi from '@/images/logos/logoMitsubishi.png'
+import { generateRssFeed } from '@/lib/generateRssFeed'
 import { formatDate } from '@/lib/formatDate'
 import { client, urlFor } from "@/lib/sanity"
 import { useState, useEffect } from 'react';
@@ -175,7 +176,7 @@ function Resume() {
     <div className="rounded-2xl border border-zinc-100 p-6 dark:border-zinc-700/40">
       <h2 className="flex text-sm font-semibold text-zinc-900 dark:text-zinc-100">
         <BriefcaseIcon className="h-6 w-6 flex-none" />
-        <span className="ml-3">Experience</span>
+        <span className="text-sm ml-3">Experience</span>
       </h2>
       <ol className="mt-6 space-y-4">
         {resume.map((role, roleIndex) => (
@@ -189,16 +190,16 @@ function Resume() {
                 {role.company}
               </dd>
               <dt className="sr-only">Role</dt>
-              <dd className="font-bold text-xs text-zinc-500 dark:text-zinc-400">
+              <dd className="mt-4 font-bold text-sm text-zinc-500 dark:text-zinc-400">
                 {role.title}
               </dd>
               <dt className="sr-only">Description</dt>
-              <dd className="text-xs text-zinc-500 dark:text-zinc-400">
+              <dd className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
                 {role.desc}
               </dd>
               <dt className="sr-only">Date</dt>
               <dd
-                className="ml-auto text-xs text-zinc-400 dark:text-zinc-500"
+                className="mt-3 ml-auto text-sm text-zinc-400 dark:text-zinc-500"
                 aria-label={`${role.start.label ?? role.start} until ${role.end.label ?? role.end
                   }`}
               >
@@ -353,4 +354,55 @@ export default function Home() {
       </Container>
     </>
   )
+}
+
+function BlogList({blogs}){
+  const [data, setPosts] = useState([]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Run only on the client side
+      async function fetchData() {
+        try {
+          const query = `
+            *[_type == 'blog'] | order(_createdAt desc) {
+              title,
+              smallDescription,
+              'currentSlug': slug.current,
+              titleImage
+            }`;
+          const res = await client.fetch(query);
+          setPosts(res);
+          console.log("result: ", res);
+        } catch (err) {
+          console.log(err);
+        }
+      }
+      fetchData();
+    }
+  }, []);
+}
+
+export async function getStaticProps() {
+  if (process.env.NODE_ENV === 'production') {
+    await generateRssFeed();
+  }
+  // const client = getClient();
+  const query = `
+    *[_type == 'blog'] | order(_createdAt desc) {
+      title,
+      smallDescription,
+      'currentSlug': slug.current,
+      titleImage
+    }`;
+
+  const data = await client.fetch(query);
+  
+  const blogs = data.slice(0, 4);
+
+  return {
+    props: {
+      blogs,
+    },
+  };
 }
